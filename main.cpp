@@ -10,20 +10,24 @@
 #include "DEQ.h"
 #include "runway.hpp"
 #include <vector>
+#include<time.h>
 using namespace std;
 
-double PoissonRandom() {
-    return static_cast<double>(rand()) / RAND_MAX;
+double PoissonRandom()
+{
+    int x = rand()%100+1;
+    return x/100.0;
 }
 
 int main()
 {
+    srand((unsigned)time(NULL));
     DEQ<plane> *queue = new DEQ<plane>;
     
     int t = 1;
     int tMax = 100;
     int landTime = 10;
-    int avgTime = 7;
+    int avgTime = 3;
     
     int tWait = 0;
     int landed = 0;
@@ -33,14 +37,15 @@ int main()
     
     while(t<tMax)
     {
+        cout<<"Current time: ";
         if(t/60<10&&t%60<10)
             cout<<"0"<<t/60<<":0"<<t%60<<endl;
         else if(t/60<10)
             cout<<"0"<<t/60<<":"<<t%60<<endl;
         else if(t%60<10)
             cout<<t/60<<":0"<<t%60<<endl;
-        
-        if(run.getProb()<PoissonRandom())
+        double x = PoissonRandom();
+        if(run.getProb()<x)
         {
             temp.newPlane();
             temp.setArrT(t);
@@ -63,12 +68,14 @@ int main()
             }
             else
             {
-                cout<<"No planes currently"<<endl;
+                cout<<"No new planes currently"<<endl;
             }
         }
         else
-            cout<<"No planes currently"<<endl;
+            cout<<"No new planes currently"<<endl;
         t++;
+        nanosleep((const struct timespec[]){{0, 500000000L}}, NULL);
+        cout<<endl;
     }
     
     double avg = tWait/landed;
