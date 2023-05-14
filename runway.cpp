@@ -19,7 +19,7 @@ runway::runway(int d,int t)
 {
     time = t;
     avgDiff = d;
-    probArr = 1-(1.0/d);
+    probArr = (1.0/d);
     freeT=-1;
 }
 
