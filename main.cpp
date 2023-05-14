@@ -9,16 +9,11 @@
 #include "plane.hpp"
 #include "DEQ.h"
 #include "runway.hpp"
+#include <vector>
 using namespace std;
 
 double PoissonRandom() {
     return static_cast<double>(rand()) / RAND_MAX;
-}
-
-double ProbAppear()
-{
-    srand( (unsigned)time( NULL ) );
-    return (float) rand()/RAND_MAX;
 }
 
 int main()
@@ -30,12 +25,21 @@ int main()
     int landTime = 10;
     int avgTime = 7;
     
+    int tWait = 0;
+    int landed = 0;
+    
     runway run(avgTime, landTime);
     plane temp(landTime);
     
     while(t<tMax)
     {
-        cout<<t/60<<":"<<t%60<<endl;
+        if(t/60<10&&t%60<10)
+            cout<<"0"<<t/60<<":0"<<t%60<<endl;
+        else if(t/60<10)
+            cout<<"0"<<t/60<<":"<<t%60<<endl;
+        else if(t%60<10)
+            cout<<t/60<<":0"<<t%60<<endl;
+        
         if(run.getProb()<PoissonRandom())
         {
             temp.newPlane();
@@ -46,13 +50,15 @@ int main()
         
         if(!queue->DEQisEmpty())
         {
-            if(queue->View_Front().getArrT()<=t)
+            if(queue->View_Front().getArrT()+landTime<=t)
             {
                 if(!run.isOccupied(t))
                 {
                     run.land(t);
-                    cout<<"Plane "<<queue->View_Front().getId()<<" has landed and waited "<<t-queue->View_Front().getArrT()<<" minutes in the air"<<endl;
+                    cout<<"Plane "<<queue->View_Front().getId()<<" has landed and waited "<<t-queue->View_Front().getArrT()-landTime<<" minutes in the air"<<endl;
+                    tWait += t-queue->View_Front().getArrT();
                     queue->Remove_Front();
+                    landed++;
                 }
             }
             else
@@ -64,4 +70,8 @@ int main()
             cout<<"No planes currently"<<endl;
         t++;
     }
+    
+    double avg = tWait/landed;
+    cout<<"The average wait time for the "<<landed<<" planes which landed is: "<<avg<<endl;
+    cout<<queue->DEQ_Length()<<" planes have arrived but haven't landed"<<endl;
 }
